@@ -162,7 +162,47 @@
             }, 1000);
         }
 
+        // ==================== 저장 / 불러오기 ====================
+        function saveData() {
+            try {
+                localStorage.setItem('id_name', document.getElementById('view-name').innerText);
+                localStorage.setItem('id_birth', document.getElementById('view-birth').innerText);
+                localStorage.setItem('id_addr', document.getElementById('view-addr').innerText);
+                localStorage.setItem('id_valid', document.getElementById('view-valid').innerText);
+                localStorage.setItem('id_issuer', document.getElementById('view-issuer').innerText);
+                
+                const img = document.getElementById('profile-img');
+                if (img.src && img.style.display !== 'none') {
+                    localStorage.setItem('id_photo', img.src);
+                }
+                return true;
+            } catch(e) {
+                console.error("저장 실패", e);
+                return false;
+            }
+        }
+
+        function loadData() {
+            try {
+                if (localStorage.getItem('id_name')) {
+                    document.getElementById('view-name').innerText = localStorage.getItem('id_name');
+                    document.getElementById('view-birth').innerText = localStorage.getItem('id_birth');
+                    document.getElementById('view-addr').innerText = localStorage.getItem('id_addr');
+                    document.getElementById('view-valid').innerText = localStorage.getItem('id_valid');
+                    document.getElementById('view-issuer').innerText = localStorage.getItem('id_issuer');
+                    
+                    const photo = localStorage.getItem('id_photo');
+                    if (photo) {
+                        document.getElementById('profile-img').src = photo;
+                        document.getElementById('profile-img').style.display = 'block';
+                    }
+                }
+            } catch(e) {}
+        }
+
         window.onload = function() {
+            loadData();
+
             // 키패드
             document.querySelectorAll('.key').forEach(key => {
                 key.addEventListener('click', () => {
@@ -206,12 +246,15 @@
                     reader.onload = e => {
                         document.getElementById('profile-img').src = e.target.result;
                         document.getElementById('profile-img').style.display = 'block';
+                        saveData();
                     };
                     reader.readAsDataURL(fileInput.files[0]);
+                } else {
+                    saveData();
                 }
 
                 document.getElementById('side-menu').classList.remove('open');
-                alert('정보가 업데이트 되었습니다.');
+                alert('✅ 정보가 성공적으로 저장되었습니다!\n(새로고침 후에도 유지됩니다)');
                 generateRandomQR();
                 startTimer();
             });
