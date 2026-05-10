@@ -162,10 +162,6 @@
             }, 1000);
         }
 
-        function stopTimer() {
-            clearInterval(timerInterval);
-        }
-
         window.onload = function() {
             // 키패드
             document.querySelectorAll('.key').forEach(key => {
@@ -191,22 +187,16 @@
                 }
             });
 
-            // 사이드 메뉴
-            const sideMenu = document.getElementById('side-menu');
+            // 메뉴
             document.getElementById('btn-menu').addEventListener('dblclick', () => {
-                sideMenu.classList.add('open');
-                stopTimer();
-            });
-
-            document.getElementById('btn-close-menu').addEventListener('click', () => {
-                sideMenu.classList.remove('open');
+                document.getElementById('side-menu').classList.add('open');
             });
 
             // 저장 버튼
             document.getElementById('btn-save').addEventListener('click', () => {
                 document.getElementById('view-name').innerText = document.getElementById('set-name').value;
                 document.getElementById('view-birth').innerText = document.getElementById('set-birth').value;
-                document.getElementById('view-addr').innerText = document.getElementById('set-addr').value;  // 공백 그대로 유지
+                document.getElementById('view-addr').innerText = document.getElementById('set-addr').value;
                 document.getElementById('view-valid').innerText = document.getElementById('set-val').value;
                 document.getElementById('view-issuer').innerText = document.getElementById('set-iss').value;
 
@@ -220,7 +210,7 @@
                     reader.readAsDataURL(fileInput.files[0]);
                 }
 
-                sideMenu.classList.remove('open');
+                document.getElementById('side-menu').classList.remove('open');
                 alert('정보가 업데이트 되었습니다.');
                 generateRandomQR();
                 startTimer();
