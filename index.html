@@ -15,8 +15,8 @@
         .dot { width: 14px; height: 14px; background: rgb(209, 213, 219); border-radius: 50%; transition: background 0.2s; }
         .dot.active { background: rgb(107, 114, 128); }
         .keypad { position: absolute; bottom: 0; width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); background: white; }
-        .key { padding: 22px 0; text-align: center; font-size: 1.6rem; font-weight: 500; cursor: pointer; border-bottom: 1px solid rgb(243, 244, 246); border-right: 1px solid rgb(243, 244, 246); }
-        .key.blue { background: rgb(59, 130, 246); color: white; font-size: 1.3rem; font-weight: 700; border: none; }
+        .key { padding: 25px 0; text-align: center; font-size: 1.6rem; font-weight: 500; cursor: pointer; border-bottom: 1px solid rgb(243, 244, 246); border-right: 1px solid rgb(243, 244, 246); }
+        .key.blue { background: rgb(59, 130, 246); color: white; font-size: 1.1rem; font-weight: 700; border: none; }
         .key.red { color: #ef4444; }
 
         #screen-main { display: none; width: 100%; height: 100vh; flex-direction: column; position: relative; }
@@ -53,8 +53,21 @@
 </head>
 <body>
 
-    <!-- (기존 화면들은 동일) -->
-    <div id="screen-pass"> ... </div>
+    <div id="screen-pass">
+        <div class="pass-title">비밀번호를 입력하세요.</div>
+        <div class="dots-container" id="dots">
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        </div>
+        <div class="keypad">
+            <div class="key">1</div><div class="key">2</div><div class="key">3</div>
+            <div class="key">4</div><div class="key">5</div><div class="key">6</div>
+            <div class="key">7</div><div class="key">8</div><div class="key">9</div>
+            <div class="key red">C</div>
+            <div class="key">0</div>
+            <div class="key blue">✔</div>
+        </div>
+    </div>
 
     <div id="screen-main">
         <div class="header">
@@ -117,7 +130,6 @@
     <script>
         let currentPass = '';
         let timerInterval = null;
-        let isTimerRunning = false;
 
         function generateRandomQR() {
             const qrContainer = document.getElementById("qr-box");
@@ -135,28 +147,12 @@
             });
         }
 
-        function checkPassword() {
-            const correctPass = document.getElementById('set-pass').value || "111111";
-            if(currentPass === correctPass) {
-                document.getElementById('screen-pass').style.display = 'none';
-                document.getElementById('screen-main').style.display = 'flex';
-                startTimer();
-                generateRandomQR();
-            } else {
-                alert('비밀번호가 일치하지 않습니다.');
-                currentPass = '';
-                updateDots();
-            }
-        }
-
         function startTimer() {
-            if (isTimerRunning) return;
-            isTimerRunning = true;
+            clearInterval(timerInterval);
             let timeLeft = 30;
             const timerNum = document.getElementById('timer-num');
             const timerFill = document.getElementById('timer-fill');
             
-            clearInterval(timerInterval);
             timerNum.innerText = timeLeft + '초';
             timerFill.style.width = '100%';
 
@@ -164,19 +160,14 @@
                 timeLeft--;
                 timerNum.innerText = timeLeft + '초';
                 timerFill.style.width = (timeLeft / 30 * 100) + '%';
-                if(timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    location.reload();
-                }
+                if(timeLeft <= 0) location.reload();
             }, 1000);
         }
 
         function stopTimer() {
             clearInterval(timerInterval);
-            isTimerRunning = false;
         }
 
-        // ==================== 이벤트 등록 ====================
         window.onload = function() {
             // 키패드
             document.querySelectorAll('.key').forEach(key => {
@@ -191,58 +182,70 @@
             });
 
             // 상세정보 버튼
-            const btnDetail = document.getElementById('btn-toggle-detail');
-            const detailInfo = document.getElementById('detail-info');
-            btnDetail.addEventListener('click', () => {
-                if(detailInfo.style.display === 'block') {
-                    detailInfo.style.display = 'none';
-                    btnDetail.innerText = '상세정보 표시';
+            document.getElementById('btn-toggle-detail').addEventListener('click', () => {
+                const detail = document.getElementById('detail-info');
+                if(detail.style.display === 'block') {
+                    detail.style.display = 'none';
+                    document.getElementById('btn-toggle-detail').innerText = '상세정보 표시';
                 } else {
-                    detailInfo.style.display = 'block';
-                    btnDetail.innerText = '상세정보 숨기기';
+                    detail.style.display = 'block';
+                    document.getElementById('btn-toggle-detail').innerText = '상세정보 숨기기';
                 }
             });
 
-            // 사이드 메뉴
-            const btnMenu = document.getElementById('btn-menu');
-            const sideMenu = document.getElementById('side-menu');
-            const btnClose = document.getElementById('btn-close-menu');
-            const btnSave = document.getElementById('btn-save');
-
-            btnMenu.addEventListener('dblclick', () => {
-                sideMenu.classList.add('open');
-                stopTimer();                    // ← 설정창 열리면 타이머 정지
+            // 사이드 메뉴 열기
+            document.getElementById('btn-menu').addEventListener('dblclick', () => {
+                document.getElementById('side-menu').classList.add('open');
+                stopTimer();
             });
 
-            btnClose.addEventListener('click', () => {
-                sideMenu.classList.remove('open');
+            // 설정창 닫기
+            document.getElementById('btn-close-menu').addEventListener('click', () => {
+                document.getElementById('side-menu').classList.remove('open');
             });
 
-            // 변경사항 저장
-            btnSave.addEventListener('click', () => {
-                // 값 저장
+            // ==================== 변경사항 저장 ====================
+            document.getElementById('btn-save').addEventListener('click', () => {
+                // 정보 업데이트
                 document.getElementById('view-name').innerText = document.getElementById('set-name').value;
                 document.getElementById('view-birth').innerText = document.getElementById('set-birth').value;
                 document.getElementById('view-addr').innerText = document.getElementById('set-addr').value;
                 document.getElementById('view-valid').innerText = document.getElementById('set-val').value;
                 document.getElementById('view-issuer').innerText = document.getElementById('set-iss').value;
 
-                // 사진 업로드
+                // 사진 처리
                 const fileInput = document.getElementById('photo-upload');
                 if (fileInput.files && fileInput.files[0]) {
                     const reader = new FileReader();
-                    reader.onload = function(e) {
+                    reader.onload = e => {
                         document.getElementById('profile-img').src = e.target.result;
                         document.getElementById('profile-img').style.display = 'block';
                     };
                     reader.readAsDataURL(fileInput.files[0]);
                 }
 
-                sideMenu.classList.remove('open');
+                document.getElementById('side-menu').classList.remove('open');
                 alert('정보가 업데이트 되었습니다.');
                 generateRandomQR();
+                
+                // 저장 후 타이머 시작
+                startTimer();
             });
         };
+
+        function checkPassword() {
+            const correctPass = document.getElementById('set-pass').value || "111111";
+            if(currentPass === correctPass) {
+                document.getElementById('screen-pass').style.display = 'none';
+                document.getElementById('screen-main').style.display = 'flex';
+                startTimer();
+                generateRandomQR();
+            } else {
+                alert('비밀번호가 일치하지 않습니다.');
+                currentPass = '';
+                updateDots();
+            }
+        }
     </script>
 </body>
 </html>
