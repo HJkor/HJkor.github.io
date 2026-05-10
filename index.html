@@ -17,7 +17,6 @@
         .keypad { position: absolute; bottom: 0; width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); background: white; }
         .key { padding: 25px 0; text-align: center; font-size: 1.6rem; font-weight: 500; cursor: pointer; border-bottom: 1px solid rgb(243, 244, 246); border-right: 1px solid rgb(243, 244, 246); }
         .key.blue { background: rgb(59, 130, 246); color: white; font-size: 1.1rem; font-weight: 700; border: none; }
-        .key.red { color: #ef4444; }
 
         #screen-main { display: none; width: 100%; height: 100vh; flex-direction: column; position: relative; }
         .header { height: 60px; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; background: white; }
@@ -30,7 +29,7 @@
         .info-section { width: 100%; display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px; }
         .name { font-size: 1.6rem; font-weight: 800; margin: 0; }
         .birth { font-size: 1.1rem; margin: 5px 0; color: rgb(55, 65, 81); }
-        .addr { color: rgb(107, 114, 128); font-size: 0.9rem; margin: 0; line-height: 1.4; }
+        .addr { color: rgb(107, 114, 128); font-size: 0.9rem; margin: 0; line-height: 1.4; white-space: pre-wrap; }
         .qr-box { width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; background: rgb(255, 255, 255); }
         
         #detail-info { display: none; width: 100%; padding: 15px; background: rgb(249, 250, 251); margin-top: 15px; border-radius: 12px; border-left: 5px solid var(--primary-blue); font-size: 0.85rem; box-sizing: border-box; }
@@ -152,7 +151,6 @@
             let timeLeft = 30;
             const timerNum = document.getElementById('timer-num');
             const timerFill = document.getElementById('timer-fill');
-            
             timerNum.innerText = timeLeft + '초';
             timerFill.style.width = '100%';
 
@@ -181,7 +179,7 @@
                 });
             });
 
-            // 상세정보 버튼
+            // 상세정보
             document.getElementById('btn-toggle-detail').addEventListener('click', () => {
                 const detail = document.getElementById('detail-info');
                 if(detail.style.display === 'block') {
@@ -193,27 +191,25 @@
                 }
             });
 
-            // 사이드 메뉴 열기
+            // 사이드 메뉴
+            const sideMenu = document.getElementById('side-menu');
             document.getElementById('btn-menu').addEventListener('dblclick', () => {
-                document.getElementById('side-menu').classList.add('open');
+                sideMenu.classList.add('open');
                 stopTimer();
             });
 
-            // 설정창 닫기
             document.getElementById('btn-close-menu').addEventListener('click', () => {
-                document.getElementById('side-menu').classList.remove('open');
+                sideMenu.classList.remove('open');
             });
 
-            // ==================== 변경사항 저장 ====================
+            // 저장 버튼
             document.getElementById('btn-save').addEventListener('click', () => {
-                // 정보 업데이트
                 document.getElementById('view-name').innerText = document.getElementById('set-name').value;
                 document.getElementById('view-birth').innerText = document.getElementById('set-birth').value;
-                document.getElementById('view-addr').innerText = document.getElementById('set-addr').value;
+                document.getElementById('view-addr').innerText = document.getElementById('set-addr').value;  // 공백 그대로 유지
                 document.getElementById('view-valid').innerText = document.getElementById('set-val').value;
                 document.getElementById('view-issuer').innerText = document.getElementById('set-iss').value;
 
-                // 사진 처리
                 const fileInput = document.getElementById('photo-upload');
                 if (fileInput.files && fileInput.files[0]) {
                     const reader = new FileReader();
@@ -224,11 +220,9 @@
                     reader.readAsDataURL(fileInput.files[0]);
                 }
 
-                document.getElementById('side-menu').classList.remove('open');
+                sideMenu.classList.remove('open');
                 alert('정보가 업데이트 되었습니다.');
                 generateRandomQR();
-                
-                // 저장 후 타이머 시작
                 startTimer();
             });
         };
